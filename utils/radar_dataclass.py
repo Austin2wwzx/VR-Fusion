@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import List, Dict, Optional
 
 '''
 ADC 数据结构体
@@ -151,16 +151,11 @@ class trackStruct:
 '''
 @dataclass
 class Radar:
-    adcStruct: adcStruct
-    beamVectorStruct: beamVectorStruct
-    frameHeader: frameHeader
-    hrrpStruct: hrrpStruct
-    rangeDopplerStruct: rangeDopplerStruct
-    rangeAngleStruct: rangeAngleStruct
-    detPointsStruct: detPointsStruct
-    trackStruct: trackStruct
-
-
-if __name__ == '__main__':
-
-    pass
+    adc: Optional[adcStruct] = None
+    bv: Optional[beamVectorStruct] = None
+    frameInfo: Optional[frameHeader] = None
+    hrrp: Optional[hrrpStruct] = None
+    rd: Optional[rangeDopplerStruct] = None
+    ra: Optional[rangeAngleStruct] = None
+    dets: Optional[detPointsStruct] = None
+    trks: Optional[trackStruct] = None

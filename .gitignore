@@ -1,0 +1,43 @@
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment folders
+venv/
+env/
+ENV/
+.venv/
+.PYTHON/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# MacOS system files
+.DS_Store
+
+# Linux system files
+*~ 
+
+# Windows system files
+Thumbs.db
+
+*.avi
+*.zip
+*.csv
+*.pcd
+*.json
+*.pdf
+*.docx

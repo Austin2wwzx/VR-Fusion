@@ -5,7 +5,7 @@ import json
 from radar_dataclass import *
 from natsort import natsorted
 from typing import List
-
+from tqdm import tqdm
 
 
 class RadarData(object):
@@ -69,7 +69,7 @@ class RadarData(object):
     def read_frames(self, file_path_list: list):
         frame_dict = dict()
 
-        for file in file_path_list:
+        for file in tqdm(file_path_list):
             with open(file, 'r') as f:
                 data = json.load(f)
 
@@ -84,7 +84,6 @@ class RadarData(object):
 if __name__ == '__main__':
 
     RADAR_DATA_DIR = './radar/json/'
-
-    data = RadarData(root_path=RADAR_DATA_DIR, duration_frames=10)
+    data = RadarData(root_path=RADAR_DATA_DIR, duration_frames=0)
 
     pass

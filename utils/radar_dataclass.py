@@ -70,6 +70,7 @@ class frameHeader:
     reserved: int
     tLVHeaderlist: List[TLVHeader]
     velResolution: float
+    add_frameTime_ms: int
 
 
 '''
@@ -113,6 +114,8 @@ class detections:
     range: float
     rangeIdx: int
     snr: float
+    add_pos_x: float = None
+    add_pos_y: float = None 
 
 @dataclass
 class detPointsStruct:

@@ -56,7 +56,7 @@ def update_queue(file_path_list: list, queue: multiprocessing.Queue):
     
 
 if __name__ == '__main__':
-    DATA_FILE_DIR = '/Users/austin/Downloads/25.1.10西博城采集数据——二分钟/Beijing_LiDAR_data'
+    DATA_FILE_DIR = '/Users/austin/Downloads/beijing-2025-01-10/lidar/data'
     file_path_list = [osp.join(DATA_FILE_DIR, file_path) for file_path in os.listdir(DATA_FILE_DIR) if file_path.endswith('.pcd')]
 
     queue = multiprocessing.Queue(maxsize=1)

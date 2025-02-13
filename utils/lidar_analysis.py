@@ -1,61 +1,77 @@
-import numpy as np
-import os
-import os.path as osp
+# import numpy as np
+# import os
+# import os.path as osp
 
 
-CSV_PATH = './lidar/raw_annotation/output_20250110171801_002.csv'
-SAVE_ROOT_PATH = './lidar/annotation'
+# if __name__ == '__main__':
+#     CSV_PATH = './lidar/raw_annotation/output_20250110171801_002.csv'
+#     ROOT_SAVE_PATH = './lidar/annotation'
 
-NUM_INFO = 126  # 每个目标信息的长度
+#     NUM_INFO = 126  # 每个信息块的长度
 
-
-def read_csv_data(csv_path):
-    with open(csv_path, 'r') as file:
-        return file.readlines()
-
-def parse_line_to_object(line):
-    '''将每一行数据解析为目标对象'''
-    infos = line.split(',')
-    n_objs = len(infos) // NUM_INFO
-    objects = list()
-
-    for i in range(n_objs):
-        obj_info = infos[1 + i * NUM_INFO: 1 + (i + 1) * NUM_INFO]
-        obj = {
-            'time': obj_info[0:13],
-            'obj_id': obj_info[13],
-            'velocity': obj_info[2],
-            'latitude': obj_info[23],
-            'longitude': obj_info[24],
-            'dim_x': obj_info[49],
-            'dim_y': obj_info[50],
-            'yaw': obj_info[51],
-            'position_x': obj_info[14],
-            'position_y': obj_info[15],
-            'position_z': obj_info[16]
-        }
-        objects.append(obj)
+#     data = open(CSV_PATH)
+#     lines = data.readlines()[1:]
+#     final_objs = list()
     
-    return objects
+#     for line in lines:
+#         infos = line.split(',')
 
-def save_to_txt(save_path, data):
-    '''将目标数据保存到txt文件'''
-    np.savetxt(save_path, data, fmt='%s', delimiter=',')
+#         n_objs = int((len(infos) - 1) / NUM_INFO)
+#         print(n_objs)
 
-def main():
-    # 读取数据
-    lines = read_csv_data(CSV_PATH)
-    
-    final_objs = []
-    for line in lines:
-        objects = parse_line_to_object(line)
-        final_objs.extend(objects)
+#         for idx in range(n_objs):
+#             cur_obj_info = infos[1 + idx*NUM_INFO: 1 + (idx+1)*NUM_INFO]
 
-    # 保存结果
-    file_name = CSV_PATH.split('/')[-1].split('.')[0]
-    file_format = '.txt'
-    save_to_txt(osp.join(SAVE_ROOT_PATH, file_name) + file_format, final_objs)
+#             cur_obj_info_time = cur_obj_info[1][:13]
+#             cur_obj_info_id = cur_obj_info[2]
+#             cur_obj_info_lon = cur_obj_info[23]
+#             cur_obj_info_lat = cur_obj_info[24]
+#             cur_obj_info_dim_x = cur_obj_info[48]
+#             cur_obj_info_dim_y = cur_obj_info[49]
+#             cur_obj_info_dim_z = cur_obj_info[50]
+#             cur_obj_info_yaw = cur_obj_info[40]
+#             cur_obj_info_x = cur_obj_info[13]
+#             cur_obj_info_y = cur_obj_info[14]
+#             cur_obj_info_z = cur_obj_info[15]
 
-if __name__ == '__main__':
-    main()
-    
+#             cur_obj = [cur_obj_info_time, cur_obj_info_id, cur_obj_info_lon, cur_obj_info_lat,
+#                        cur_obj_info_dim_x, cur_obj_info_dim_y, cur_obj_info_dim_z, cur_obj_info_yaw,
+#                        cur_obj_info_x, cur_obj_info_y, cur_obj_info_z]
+
+#             final_objs.append(cur_obj)
+
+#     file_name = CSV_PATH.split('/')[-1].split('.')[0]
+#     file_format = '.txt'
+#     np.savetxt(osp.join(ROOT_SAVE_PATH, file_name) + file_format, final_objs, fmt='%s', delimiter=',')
+
+
+import cv2
+
+def extract_frames(video_path, output_folder):
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print('Error: Failed to open video file.')
+        return
+
+    frame_count = 0
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        frame_path = f'{output_folder}/frame_{frame_count:04d}.png'
+        cv2.imwrite(frame_path, frame)
+
+        frame_count += 1
+
+    cap.release()
+
+
+# 视频文件路径
+video_path = './camera/2025-01-10/2025-01-10_17-18-00_racobit@12@192.168.1.81.avi'
+# 输出文件夹路径
+output_folder = '/Users/austin/Downloads/beijing-2025-01-10/camera/2025-01-10/images'
+
+# 调用函数提取帧
+extract_frames(video_path, output_folder)

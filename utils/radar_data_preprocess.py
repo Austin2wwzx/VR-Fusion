@@ -13,11 +13,15 @@ from tqdm import tqdm
 
 class RadarData(object):
 
-    def __init__(self, root_path: str,
+    def __init__(self, root_path: str = None,
+                 specified_path_list: str = None,
                  start_frame_idx: int = 0,
                  duration_frames: int = 0, ):
         
-        radar_file_path_list = [osp.join(root_path, path) for path in natsorted(os.listdir(root_path)) if path.endswith('json')]
+        if specified_path_list == None:
+            radar_file_path_list = [osp.join(root_path, path) for path in natsorted(os.listdir(root_path)) if path.endswith('json')]
+        else:
+            radar_file_path_list = specified_path_list
         self.total_frames = len(radar_file_path_list)
 
         assert start_frame_idx < self.total_frames and (start_frame_idx + duration_frames) < self.total_frames
@@ -34,7 +38,7 @@ class RadarData(object):
 
     def read_single_frame(self, data: dict = None,
                           data_file_path: str = None,
-                          dropped_field: List[str] = ['adc', 'bv', 'hrrp', 'rd', 'ra']) -> Radar:
+                          dropped_field: List[str] = ['adc', 'bv', 'hrrp', 'rd', 'ra', 'trks']) -> Radar:
         single_frame = Radar()
 
         if data == None:

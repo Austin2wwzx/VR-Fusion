@@ -119,7 +119,7 @@ class detections:
 
 @dataclass
 class detPointsStruct:
-    dets: List[detections]
+    det_list: List[detections]
 
 
 '''
@@ -146,7 +146,7 @@ class tracks:
 
 @dataclass
 class trackStruct:
-    trks: List[tracks]
+    trk_list: List[tracks]
 
 
 '''

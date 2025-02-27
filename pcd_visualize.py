@@ -57,7 +57,7 @@ def vis_pcd(pcd_path_list: list, view_point_json_psth: str):
 
 if __name__ == '__main__':
 
-    DATA_FILE_DIR = '/Users/austin/Downloads/25.1.10西博城采集数据——二分钟/Beijing_LiDAR_data'
+    DATA_FILE_DIR = '/Users/austin/Downloads/25.1.10西博城采集数据——二分钟/chengdu_LiDAR_data'
     file_path_list = [osp.join(DATA_FILE_DIR, file_path) for file_path in os.listdir(DATA_FILE_DIR) if file_path.endswith('.pcd')]
 
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
 
 # if __name__ == "__main__":
-#     DATA_FILE_DIR = '/Users/austin/Downloads/25.1.10西博城采集数据——二分钟/Beijing_LiDAR_data'
+#     DATA_FILE_DIR = '/Users/austin/Downloads/25.1.10西博城采集数据——二分钟/chengdu_LiDAR_data'
 #     show_pointcloud_dir(DATA_FILE_DIR) 
 
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
 # import copy
  
 # if __name__ == "__main__":
-#     point_cloud = o3d.io.read_point_cloud('Beijing_LiDAR_data/1736500681.467958000.pcd')
+#     point_cloud = o3d.io.read_point_cloud('chengdu_LiDAR_data/1736500681.467958000.pcd')
  
 #     vis = o3d.visualization.Visualizer()
 #     vis.create_window()

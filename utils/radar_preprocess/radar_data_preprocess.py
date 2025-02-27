@@ -5,7 +5,7 @@ import time
 import numpy as np
 import multiprocessing
 
-from radar_dataclass import *
+from .radar_dataclass import *
 from natsort import natsorted
 from typing import List
 from tqdm import tqdm
@@ -38,7 +38,7 @@ class RadarData(object):
 
     def read_single_frame(self, data: dict = None,
                           data_file_path: str = None,
-                          dropped_field: List[str] = ['adc', 'bv', 'hrrp', 'rd', 'ra', 'trks']) -> Radar:
+                          dropped_field: List[str] = ['adc', 'bv', 'hrrp', 'rd', 'ra', ]) -> Radar:
         single_frame = Radar()
 
         if data == None:

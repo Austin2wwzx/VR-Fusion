@@ -46,9 +46,9 @@ def get_vedio_info(file_path: str,
     return floating_fps
 
 # FIXME: Why the num of key frames extracted by ffmpeg is not equal to the num of frames read??? fxxk ffmpeg!
-def get_images_ffmpeg(vedio_file_path: str = './camera/beijing-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi', 
+def get_images_ffmpeg(vedio_file_path: str = './camera/chengdu-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi', 
                       timestamp_file_path: str = None,
-                      output_floder_path: str = './camera/beijing-2025-02-26/images',
+                      output_floder_path: str = './camera/chengdu-2025-02-26/images',
                       verbose: bool = True):
     
     if not osp.exists(output_floder_path):
@@ -82,9 +82,9 @@ def get_images_ffmpeg(vedio_file_path: str = './camera/beijing-2025-02-26/2025-0
     #     os.rename(old_filename, new_filename)
     
 
-def get_images_cv(vedio_file_path: str = './camera/beijing-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi', 
+def get_images_cv(vedio_file_path: str = './camera/chengdu-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi', 
                   timestamp_file_path: str = None,
-                  output_floder_path: str = './camera/beijing-2025-02-26/images'):
+                  output_floder_path: str = './camera/chengdu-2025-02-26/images'):
     
     cap = cv2.VideoCapture(vedio_file_path)
     if not cap.isOpened():
@@ -123,8 +123,8 @@ def get_images_cv(vedio_file_path: str = './camera/beijing-2025-02-26/2025-02-26
 
 
 if __name__ == '__main__':
-    VIDEO_FILE_PATH = './camera/beijing-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi'
-    TIMESTAMP_FILE_PATH = './camera/beijing-2025-02-26/parameters/2025-02-26_13-04-03timesteamp.txt'
-    OUT_FOLDER_PATH = './camera/beijing-2025-02-26/images'
+    VIDEO_FILE_PATH = './camera/chengdu-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi'
+    TIMESTAMP_FILE_PATH = './camera/chengdu-2025-02-26/parameters/2025-02-26_13-04-03timesteamp.txt'
+    OUT_FOLDER_PATH = './camera/chengdu-2025-02-26/images'
 
     get_images_cv(timestamp_file_path=TIMESTAMP_FILE_PATH)

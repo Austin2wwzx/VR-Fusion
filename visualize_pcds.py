@@ -6,7 +6,7 @@ import multiprocessing
 import time
 import joblib
 
-from utils import RadarData
+# from utils import RadarData
 from natsort import natsorted
 
 
@@ -16,7 +16,7 @@ def visualize_PCs(queue: multiprocessing.Queue):
     vis.create_window()
 
     lidar_pcd = o3d.geometry.PointCloud()
-    radar_pcd = o3d.geometry.PointCloud()
+    # radar_pcd = o3d.geometry.PointCloud()
     coordinate_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=10, origin=[0, 0, 0])
     
     first_add = True
@@ -31,15 +31,15 @@ def visualize_PCs(queue: multiprocessing.Queue):
             lidar_pcd.points = o3d.utility.Vector3dVector(lidar_point_clouds)
             lidar_pcd.paint_uniform_color([0, 0, 1])
 
-            radar_point_clouds = radar_dets_list[radar_file_idx]
-            radar_point_clouds = np.asarray([[np.asarray([item.add_pos_x, -item.add_pos_y+24, 0]) for item in radar_point_clouds]]).reshape((-1, 3))
-            radar_pcd.points = o3d.utility.Vector3dVector(radar_point_clouds)
-            radar_pcd.paint_uniform_color([1, 0, 0])
+            # radar_point_clouds = radar_dets_list[radar_file_idx]
+            # radar_point_clouds = np.asarray([[np.asarray([item.add_pos_x, -item.add_pos_y+24, 0]) for item in radar_point_clouds]]).reshape((-1, 3))
+            # radar_pcd.points = o3d.utility.Vector3dVector(radar_point_clouds)
+            # radar_pcd.paint_uniform_color([1, 0, 0])
 
             if first_add:
                 vis.add_geometry(coordinate_frame)
                 vis.add_geometry(lidar_pcd)
-                vis.add_geometry(radar_pcd)
+                # vis.add_geometry(radar_pcd)
                 first_add = False
 
             opt = vis.get_render_option()
@@ -47,7 +47,7 @@ def visualize_PCs(queue: multiprocessing.Queue):
             
             vis.update_geometry(coordinate_frame)
             vis.update_geometry(lidar_pcd)
-            vis.update_geometry(radar_pcd)
+            # vis.update_geometry(radar_pcd)
 
         vis.poll_events()
         vis.update_renderer()
@@ -64,8 +64,8 @@ def update_queue(lidar_file_path_list: list,
 
     while True:
         lidar_file_path = lidar_file_path_list[frame]
-        radar_file_path = radar_file_path_list[frame]
-        print('LiDAR file path: {}, RADAR file path: {}'.format(lidar_file_path.split('/')[-1], radar_file_path.split('/')[-1]))
+        # radar_file_path = radar_file_path_list[frame]
+        # print('LiDAR file path: {}, RADAR file path: {}'.format(lidar_file_path.split('/')[-1], radar_file_path.split('/')[-1]))
 
         if queue.empty():
             queue.put([lidar_file_path, frame])
@@ -77,19 +77,19 @@ def update_queue(lidar_file_path_list: list,
     
 
 if __name__ == '__main__':
-    # DATA_FILE_DIR = '/Users/austin/Downloads/beijing-2025-01-10/lidar/data'
-    # file_path_list = [osp.join(DATA_FILE_DIR, file_path) for file_path in natsorted(os.listdir(DATA_FILE_DIR)) if file_path.endswith('.pcd')]
+    DATA_FILE_DIR = '/Users/austin/Downloads/VRFusion/lidar/beijing-2025-02-16/PCD'
+    file_path_list = [osp.join(DATA_FILE_DIR, file_path) for file_path in natsorted(os.listdir(DATA_FILE_DIR)) if file_path.endswith('.pcd')]
 
-    lidar_file_path_list, radar_file_path_list = joblib.load('/Users/austin/Downloads/beijing-2025-01-10/utils/time_aligned_list.list')
+    # lidar_file_path_list, radar_file_path_list = joblib.load('/Users/austin/Downloads/beijing-2025-01-10/utils/time_aligned_list.list')
 
-    radar_frames_dict = RadarData(specified_path_list=radar_file_path_list, )
-    radar_frames_list = [radar_frames_dict.frame_dict[keys] for keys in radar_frames_dict.frame_dict]
-    radar_dets_list = [radar_frame.dets.det_list for radar_frame in radar_frames_list]
+    # radar_frames_dict = RadarData(specified_path_list=radar_file_path_list, )
+    # radar_frames_list = [radar_frames_dict.frame_dict[keys] for keys in radar_frames_dict.frame_dict]
+    # radar_dets_list = [radar_frame.dets.det_list for radar_frame in radar_frames_list]
 
 
     queue = multiprocessing.Queue(maxsize=1)
 
-    load_process = multiprocessing.Process(target=update_queue, args=(lidar_file_path_list, radar_file_path_list, queue))
+    load_process = multiprocessing.Process(target=update_queue, args=(file_path_list, None, queue))
     load_process.daemon = True
     load_process.start()
     

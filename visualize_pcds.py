@@ -38,7 +38,6 @@ def visualize_PCs(queue: multiprocessing.Queue):
                                        [-np.sin(theta), np.cos(theta), 0],
                                        [             0,             0, 0]])
 
-
             radar_point_clouds = np.asarray([[np.asarray([item.add_pos_x, -item.add_pos_y, 0]) for item in radar_point_clouds]]).reshape((-1, 3)) @ rotation_array + np.asarray([0, 21, 0])
             radar_pcd.points = o3d.utility.Vector3dVector(radar_point_clouds)
             radar_pcd.paint_uniform_color([1, 0, 0])

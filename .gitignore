@@ -89,3 +89,4 @@ Thumbs.db
 *.tar.lzo
 *.tar.lz4
 *.tar.xz
+*.dict

@@ -5,21 +5,29 @@ import os
 import os.path as osp
 import joblib
 import cv2
+import pandas as pd
 
 from utils import RadarData, Radar, detections
 
 from io import BytesIO
 from tqdm import tqdm
 from typing import List
-from datetime import datetime
+from natsort import natsorted
+
 from foxglove_schemas_protobuf.PackedElementField_pb2 import PackedElementField
 from foxglove_schemas_protobuf.Pose_pb2 import Pose
 from foxglove_schemas_protobuf.Vector3_pb2 import Vector3
 from foxglove_schemas_protobuf.Quaternion_pb2 import Quaternion
 from foxglove_schemas_protobuf.PointCloud_pb2 import PointCloud
 from foxglove_schemas_protobuf.CompressedImage_pb2 import CompressedImage
+from foxglove_schemas_protobuf.CubePrimitive_pb2 import CubePrimitive
+from foxglove_schemas_protobuf.Color_pb2 import Color
+from foxglove_schemas_protobuf.SceneEntity_pb2 import SceneEntity
+from foxglove_schemas_protobuf.SceneUpdate_pb2 import SceneUpdate
+
 from mcap_protobuf.writer import Writer
 from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.duration_pb2 import Duration
 
 
 def write_mcap(lidar_radar_temporal_align_file_path: str = 
@@ -44,6 +52,10 @@ def write_mcap(lidar_radar_temporal_align_file_path: str =
     Camera_Timestamp_ROOT_PATH = '/Users/austin/Downloads/VRFusion/camera/chengdu-2025-02-26/parameters/2025-02-26_13-04-03timesteamp.txt'
     with open(Camera_Timestamp_ROOT_PATH, 'r') as file:
         frame_time_stamp_list = file.readlines()
+
+    LiDAR_ANNOTATIONS_ROOT_PATH = '/Users/austin/Downloads/VRFusion/result/annotation/chengdu-2025-02-26:lidar_annotation.dict'
+    LiDAR_annos_dict = joblib.load(LiDAR_ANNOTATIONS_ROOT_PATH)
+    LiDAR_annos_timestamp_list = natsorted(list(LiDAR_annos_dict.keys()))
 
     with open(osp.join(mcap_out_path, 'chengdu-2025-02-26:lidar_radar_pcds.mcap'), 'wb') as f, Writer(f) as writer:
 
@@ -72,6 +84,19 @@ def write_mcap(lidar_radar_temporal_align_file_path: str =
             write_Camera_frame(writer=writer,
                                single_frame=single_frame,
                                now=int(camera_timestamp))
+            
+        for idx in tqdm(range(len(LiDAR_annos_timestamp_list))):
+            try:
+                lidar_annos_timestamp = int(LiDAR_annos_timestamp_list[idx]) * 1e4
+                lidar_annos_timestamp_diff = int(LiDAR_annos_timestamp_list[idx+1]) * 1e4 - lidar_annos_timestamp
+                lidar_annos_df = LiDAR_annos_dict[LiDAR_annos_timestamp_list[idx]]
+
+                write_LiDAR_annos(writer=writer,
+                                  lidar_annos_df=lidar_annos_df,
+                                  now=int(lidar_annos_timestamp),
+                                  diff=int(lidar_annos_timestamp_diff))
+            except IndexError:
+                break
 
 
 def write_LiDAR_pcds(writer: Writer, 
@@ -206,8 +231,62 @@ def write_Camera_frame(writer: Writer,
     )
 
 
+def write_LiDAR_annos(writer: Writer,
+                      lidar_annos_df: pd.DataFrame,
+                      now: int,
+                      diff: int) -> None:
+
+    scene_message = SceneUpdate()
+    cube_list: List[CubePrimitive] = list()
+
+    for idx in range(lidar_annos_df.shape[0]):
+        obj = lidar_annos_df.iloc[idx, :]
+
+        pose = Pose(
+            position=Vector3(x=obj['x'], y=obj['y'], z=obj['z']),
+            orientation=Quaternion(**angle_to_quaternion(obj['Ori'], [0, 0, 1])),
+        )
+        size = Vector3(x=obj['x_size'], y=obj['y_size'], z=obj['z_size'])
+        # TODO: 添加根据类别确定颜色的代码
+        obj_color = Color(r=1, g=0, b=0, a=0.99)
+
+        cube = CubePrimitive(pose=pose, size=size, color=obj_color)
+        cube_list.append(cube)
+    
+        message = SceneEntity(
+            timestamp=timestamp(now),
+            frame_id='pcds',
+            id=str(int(obj['ID'])),
+            lifetime=Duration(nanos=diff),
+            frame_locked=True,
+            cubes=cube_list,
+        )
+
+        scene_message.entities.append(message)
+        
+    writer.write_message(
+        topic='/lidar_annotations',
+        log_time=now,
+        message=scene_message,
+        publish_time=now,
+    )
+
+
+
 def timestamp(time_ns: int) -> Timestamp:
     return Timestamp(seconds=time_ns // 1_000_000_000, nanos=time_ns % 1_000_000_000)
+
+
+def angle_to_quaternion(angle_degrees, axis):
+
+    angle_radians = np.deg2rad(angle_degrees - 90)
+    axis = np.array(axis)
+    axis = axis / np.linalg.norm(axis)
+
+    w = np.cos(angle_radians / 2)
+    x, y, z = axis * np.sin(angle_radians / 2)
+
+    return {'w': w, 'x': x, 'y': y, 'z': z}
 
 
 if __name__ == '__main__':

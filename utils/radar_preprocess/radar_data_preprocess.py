@@ -38,7 +38,7 @@ class RadarData(object):
 
     def read_single_frame(self, data: dict = None,
                           data_file_path: str = None,
-                          dropped_field: List[str] = ['adc', 'bv', 'hrrp', 'rd', 'ra', ]) -> Radar:
+                          dropped_field: List[str] = ['adc', 'bv', 'hrrp', 'ra', ]) -> Radar:
         single_frame = Radar()
 
         if data == None:
@@ -68,7 +68,8 @@ class RadarData(object):
             hrrp_data = hrrpStruct(data['hrrp'])
             single_frame.hrrp = hrrp_data
         if 'rd' not in dropped_field:
-            rd_data = rangeDopplerStruct(data['rangeDoppler'])
+            rd_map = (np.array([item['data'] for item in data['rangeDoppler']]).reshape(-1, 512).T - 2506) / ((6180 - 2506) / 255)
+            rd_data = rangeDopplerStruct(rd_map.astype(np.uint8))
             single_frame.rd = rd_data
         if 'ra' not in dropped_field:
             ra_data = rangeAngleStruct(**{keys: data['rangeAngle'][keys] for keys in data['rangeAngle']})
@@ -140,7 +141,7 @@ class RadarData(object):
 
 if __name__ == '__main__':
 
-    RADAR_DATA_DIR = './radar/json/'
-    data = RadarData(root_path=RADAR_DATA_DIR, duration_frames=0)
+    RADAR_DATA_DIR = '/Users/austin/Downloads/VRFusion/radar/chengdu-2025-02-26/json'
+    data = RadarData(root_path=RADAR_DATA_DIR, duration_frames=10)
 
     pass

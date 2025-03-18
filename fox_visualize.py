@@ -22,7 +22,7 @@ from foxglove_schemas_protobuf.PointCloud_pb2 import PointCloud
 from foxglove_schemas_protobuf.CompressedImage_pb2 import CompressedImage
 from foxglove_schemas_protobuf.CubePrimitive_pb2 import CubePrimitive
 from foxglove_schemas_protobuf.Color_pb2 import Color
-from foxglove_schemas_protobuf.SceneEntity_pb2 import SceneEntity
+from foxglove_schemas_protobuf.SceneEntity_pb2 import SceneEntity 
 from foxglove_schemas_protobuf.SceneUpdate_pb2 import SceneUpdate
 
 from mcap_protobuf.writer import Writer
@@ -38,26 +38,26 @@ def write_mcap(lidar_radar_temporal_align_file_path: str =
     if not osp.exists(mcap_out_path):
         os.makedirs(mcap_out_path)
 
-    LiDAR_ROOT_PATH = '/Users/austin/Downloads/VRFusion/lidar/chengdu-2025-02-26/data'
+    LiDAR_ROOT_PATH = '/Users/austin/Downloads/VRFusion/lidar/chengdu-2025-01-10/data'
     lidar_pcds_file_list = [osp.join(LiDAR_ROOT_PATH, file_path) for file_path in os.listdir(LiDAR_ROOT_PATH)]
 
-    RADAR_ROOT_PATH = '/Users/austin/Downloads/VRFusion/radar/chengdu-2025-02-26/json'
+    RADAR_ROOT_PATH = '/Users/austin/Downloads/VRFusion/radar/chengdu-2025-01-10/json'
     radar_frames_file_list = [osp.join(RADAR_ROOT_PATH, file_path) for file_path in os.listdir(RADAR_ROOT_PATH)]
     radar_frames_dict = RadarData(specified_path_list=radar_frames_file_list, )
     radar_frames_list: List[Radar] = [radar_frames_dict.frame_dict[keys] for keys in radar_frames_dict.frame_dict]
 
-    Camera_ROOT_PATH = '/Users/austin/Downloads/VRFusion/camera/chengdu-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi'
-    camera_video_stream = cv2.VideoCapture(Camera_ROOT_PATH)
-    camera_video_num_frames = int(camera_video_stream.get(cv2.CAP_PROP_FRAME_COUNT))
-    Camera_Timestamp_ROOT_PATH = '/Users/austin/Downloads/VRFusion/camera/chengdu-2025-02-26/parameters/2025-02-26_13-04-03timesteamp.txt'
-    with open(Camera_Timestamp_ROOT_PATH, 'r') as file:
-        frame_time_stamp_list = file.readlines()
+    # Camera_ROOT_PATH = '/Users/austin/Downloads/VRFusion/camera/chengdu-2025-02-26/2025-02-26_13-04-01_racobit@12@192.168.1.81.avi'
+    # camera_video_stream = cv2.VideoCapture(Camera_ROOT_PATH)
+    # camera_video_num_frames = int(camera_video_stream.get(cv2.CAP_PROP_FRAME_COUNT))
+    # Camera_Timestamp_ROOT_PATH = '/Users/austin/Downloads/VRFusion/camera/chengdu-2025-02-26/parameters/2025-02-26_13-04-03timesteamp.txt'
+    # with open(Camera_Timestamp_ROOT_PATH, 'r') as file:
+    #     frame_time_stamp_list = file.readlines()
 
-    LiDAR_ANNOTATIONS_ROOT_PATH = '/Users/austin/Downloads/VRFusion/result/annotation/chengdu-2025-02-26:lidar_annotation.dict'
-    LiDAR_annos_dict = joblib.load(LiDAR_ANNOTATIONS_ROOT_PATH)
-    LiDAR_annos_timestamp_list = natsorted(list(LiDAR_annos_dict.keys()))
+    # LiDAR_ANNOTATIONS_ROOT_PATH = '/Users/austin/Downloads/VRFusion/result/annotation/chengdu-2025-02-26:lidar_annotation.dict'
+    # LiDAR_annos_dict = joblib.load(LiDAR_ANNOTATIONS_ROOT_PATH)
+    # LiDAR_annos_timestamp_list = natsorted(list(LiDAR_annos_dict.keys()))
 
-    with open(osp.join(mcap_out_path, 'chengdu-2025-02-26:lidar_radar_pcds.mcap'), 'wb') as f, Writer(f) as writer:
+    with open(osp.join(mcap_out_path, 'chengdu-2025-01-10:lidar_radar_pcds.mcap'), 'wb') as f, Writer(f) as writer:
 
         for idx in tqdm(range(len(lidar_pcds_file_list))):
             lidar_timestamp = lidar_pcds_file_list[idx].split('/')[-1].split('.')[0] + \
@@ -76,27 +76,31 @@ def write_mcap(lidar_radar_temporal_align_file_path: str =
             write_RADAR_pcds(writer,
                              radar_frame=radar_frame_obj,
                              now=int(radar_timestamp))
-
-        for idx in tqdm(range(camera_video_num_frames)):
-            camera_timestamp = int(frame_time_stamp_list[idx].strip()) * 1e6
-            _, single_frame = camera_video_stream.read()
-
-            write_Camera_frame(writer=writer,
-                               single_frame=single_frame,
-                               now=int(camera_timestamp))
             
-        for idx in tqdm(range(len(LiDAR_annos_timestamp_list))):
-            try:
-                lidar_annos_timestamp = int(LiDAR_annos_timestamp_list[idx]) * 1e4
-                lidar_annos_timestamp_diff = int(LiDAR_annos_timestamp_list[idx+1]) * 1e4 - lidar_annos_timestamp
-                lidar_annos_df = LiDAR_annos_dict[LiDAR_annos_timestamp_list[idx]]
+            write_RD_frame(writer,
+                           radar_frame=radar_frame_obj,
+                           now=int(radar_timestamp))
 
-                write_LiDAR_annos(writer=writer,
-                                  lidar_annos_df=lidar_annos_df,
-                                  now=int(lidar_annos_timestamp),
-                                  diff=int(lidar_annos_timestamp_diff))
-            except IndexError:
-                break
+        # for idx in tqdm(range(camera_video_num_frames)):
+        #     camera_timestamp = int(frame_time_stamp_list[idx].strip()) * 1e6
+        #     _, single_frame = camera_video_stream.read()
+
+        #     write_Camera_frame(writer=writer,
+        #                        single_frame=single_frame,
+        #                        now=int(camera_timestamp))
+            
+        # for idx in tqdm(range(len(LiDAR_annos_timestamp_list))):
+        #     try:
+        #         lidar_annos_timestamp = int(LiDAR_annos_timestamp_list[idx]) * 1e4
+        #         lidar_annos_timestamp_diff = int(LiDAR_annos_timestamp_list[idx+1]) * 1e4 - lidar_annos_timestamp
+        #         lidar_annos_df = LiDAR_annos_dict[LiDAR_annos_timestamp_list[idx]]
+
+        #         write_LiDAR_annos(writer=writer,
+        #                           lidar_annos_df=lidar_annos_df,
+        #                           now=int(lidar_annos_timestamp),
+        #                           diff=int(lidar_annos_timestamp_diff))
+        #     except IndexError:
+        #         break
 
 
 def write_LiDAR_pcds(writer: Writer, 
@@ -148,6 +152,7 @@ def write_RADAR_pcds(writer: Writer,
                      theta: float = 2,
                      trans_x: float = 0,
                      trans_y: float = 21.5) -> None:
+    # FIXME: 点云存在多帧累积的情况，是由于原始点迹数据中不同帧的点迹数量存在较大的区别
 
     fields = [PackedElementField(name='x', type=PackedElementField.FLOAT32, offset=0),
               PackedElementField(name='y', type=PackedElementField.FLOAT32, offset=4),
@@ -164,6 +169,8 @@ def write_RADAR_pcds(writer: Writer,
         position=Vector3(x=0, y=0, z=0),
         orientation=Quaternion(w=1, x=0, y=0, z=0),
     )
+
+    # FIXME: 直接拿 dataframe 读 json
 
     data_stream = BytesIO()
     radar_pcds_list: List[detections] = radar_frame.dets.det_list
@@ -231,6 +238,33 @@ def write_Camera_frame(writer: Writer,
     )
 
 
+def write_RD_frame(writer: Writer,
+                   radar_frame: Radar,
+                   now: int) -> None:
+    
+    data_stream = BytesIO()
+    rd_map_array = radar_frame.rd.rangeDoppler
+    
+    data_stream = BytesIO()
+    # data_stream.write(cv2.imencode('.png', single_frame, [cv2.IMWRITE_PNG_COMPRESSION, 1])[1].tobytes())
+    data_stream.write(cv2.imencode('.jpg', cv2.applyColorMap(rd_map_array, cv2.COLORMAP_JET), [cv2.IMWRITE_JPEG_QUALITY, 20])[1].tobytes())
+
+    img = CompressedImage(
+        timestamp=timestamp(now),
+        frame_id='rd_map',
+        data=data_stream.getvalue(),
+        # format='png'
+        format='jpeg'
+    )
+
+    writer.write_message(
+        topic='/rd_map',
+        log_time=now,
+        message=img,
+        publish_time=now,
+    )
+
+
 def write_LiDAR_annos(writer: Writer,
                       lidar_annos_df: pd.DataFrame,
                       now: int,
@@ -258,7 +292,7 @@ def write_LiDAR_annos(writer: Writer,
             frame_id='pcds',
             id=str(int(obj['ID'])),
             lifetime=Duration(nanos=diff),
-            frame_locked=True,
+            # frame_locked=True,
             cubes=cube_list,
         )
 

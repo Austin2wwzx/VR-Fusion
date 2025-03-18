@@ -1,5 +1,8 @@
+import numpy as np
+
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
+
 
 '''
 ADC 数据结构体
@@ -88,7 +91,7 @@ RD 索引数据结构体
 @dataclass
 class rangeDopplerStruct:
     # TODO: 根据距离维分辨单元数 512 和多普勒维分辨单元数 512 可以计算出总共有 262144 个值
-    rangeDoppler: List[float]
+    rangeDoppler: np.array
 
 
 '''
